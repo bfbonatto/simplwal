@@ -209,11 +209,11 @@ struct ChunkHeader {
     is_final: bool,
 }
 
-pub(crate) const MAGIC_NUMBER: [u8; 8] = [b'S', b'I', b'M', b'P', b'L', b'W', b'A', b'L'];
+const MAGIC_NUMBER: [u8; 8] = [b'S', b'I', b'M', b'P', b'L', b'W', b'A', b'L'];
 const QUEUE_HEADER_SIZE: usize = size_of::<QueueHeader>();
 const CHUNK_HEADER_SIZE: usize = size_of::<ChunkHeader>();
 
-pub(crate) fn read_queue_header<R: io::Read>(r: &mut R) -> io::Result<QueueHeader> {
+fn read_queue_header<R: io::Read>(r: &mut R) -> io::Result<QueueHeader> {
     let mut buf: [u8; QUEUE_HEADER_SIZE] = [0; QUEUE_HEADER_SIZE];
     r.read_exact(buf.as_mut_slice())?;
     io::Result::Ok(QueueHeader {
