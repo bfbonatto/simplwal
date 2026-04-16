@@ -17,15 +17,15 @@ impl Default for OpenOptions {
 }
 
 #[derive(Debug)]
-pub struct OpenError {}
+pub struct InvalidChunkSizeError {}
 
-impl fmt::Display for OpenError {
+impl fmt::Display for InvalidChunkSizeError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "invalid chunk size")
     }
 }
 
-impl Error for OpenError {}
+impl Error for InvalidChunkSizeError {}
 
 impl OpenOptions {
     pub fn new() -> Self {
@@ -39,7 +39,7 @@ impl OpenOptions {
 
     pub fn open<P: AsRef<Path>>(&self, path: P) -> Result<Queue, Box<dyn Error>> {
         if self.chunk_size == 0 {
-            return Result::Err(Box::new(OpenError {}));
+            return Result::Err(Box::new(InvalidChunkSizeError {}));
         }
         let mut f = fs::OpenOptions::new()
             .create(true)
@@ -209,11 +209,11 @@ struct ChunkHeader {
     is_final: bool,
 }
 
-const MAGIC_NUMBER: [u8; 8] = [b'S', b'I', b'M', b'P', b'L', b'W', b'A', b'L'];
+pub(crate) const MAGIC_NUMBER: [u8; 8] = [b'S', b'I', b'M', b'P', b'L', b'W', b'A', b'L'];
 const QUEUE_HEADER_SIZE: usize = size_of::<QueueHeader>();
 const CHUNK_HEADER_SIZE: usize = size_of::<ChunkHeader>();
 
-fn read_queue_header<R: io::Read>(r: &mut R) -> io::Result<QueueHeader> {
+pub(crate) fn read_queue_header<R: io::Read>(r: &mut R) -> io::Result<QueueHeader> {
     let mut buf: [u8; QUEUE_HEADER_SIZE] = [0; QUEUE_HEADER_SIZE];
     r.read_exact(buf.as_mut_slice())?;
     io::Result::Ok(QueueHeader {
