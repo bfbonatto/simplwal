@@ -53,12 +53,14 @@ impl OpenOptions {
                 if err.kind() != io::ErrorKind::UnexpectedEof {
                     Result::Err(Box::new(err))
                 } else {
-                    Result::Ok(Queue {
+                    let mut q = Queue {
                         f,
                         chunk_size: self.chunk_size,
                         num_chunks: 0,
                         read_index: 0,
-                    })
+                    };
+                    q.sync()?;
+                    Result::Ok(q)
                 }
             }
             Result::Ok(h) => {
